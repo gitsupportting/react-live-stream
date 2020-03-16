@@ -40,7 +40,7 @@ function handleStream(screenStream) {
       // mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
       mimeType: 'video/webm; codecs="opus, vp9"',
       disableLogs: true,
-      timeSlice: 2000,
+      timeSlice: 400,
       ondataavailable: function (blob) {
         that.addBlobToArray(blob);
         rxCount++;
