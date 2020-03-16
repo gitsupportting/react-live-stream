@@ -123,7 +123,7 @@ componentDidMount(){
   this.getUserMedia(stream => {
     var recorder = new MediaRecorder(stream, {mimeType : 'video/webm; codecs="opus, vp9"'});
     recorder.ondataavailable = recorderOnDataAvailable;
-    recorder.start(10);
+    recorder.start(20);
     function recorderOnDataAvailable(e){
       that.addBlobToArray(e.data);
     }
@@ -157,7 +157,7 @@ componentDidMount(){
 
   }
   addBlobToArray(blob){
-    // console.log(new UnitArray(blob));
+    // console.log(new UnitArray(blob));    
     if(rxCount == 0){
       blob.arrayBuffer().then(data => {
         sourceBuffer.appendBuffer(data);
