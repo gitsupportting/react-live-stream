@@ -11,9 +11,9 @@ var rxCount = 0;
 
 var mediaSource;
 var sourceBuffer;
-var blobBuffers = [];
 var player;
 var that;
+
 function handleStream(screenStream) {
   navigator.mediaDevices.getUserMedia({ audio: true }).then(function (microphone) {
     var finalStreamToBeRecorded = new MediaStream();
@@ -40,10 +40,13 @@ function handleStream(screenStream) {
       // mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
       mimeType: 'video/webm; codecs="opus, vp9"',
       disableLogs: true,
-      timeSlice: 400,
+      timeSlice: 200,
       ondataavailable: function (blob) {
-        that.addBlobToArray(blob);
-        rxCount++;
+        // blob.arrayBuffer().then( data => {
+        //    arrayBuffers.push(data);
+        // });
+        // console.log("rxCount",rxCount);
+        // rxCount++;
       },
 
       onAudioProcessStarted: function () {
@@ -57,8 +60,8 @@ function handleStream(screenStream) {
       previewStream: function (stream) { },
       video: HTMLVideoElement,
       canvas: {
-        width: 640,
-        height: 480
+        width: 50,
+        height: 50
       },
       sampleRate: 96000,
       desiredSampRate: 96000,
@@ -117,6 +120,14 @@ class CameraRecorder extends React.Component {
   }
 componentDidMount(){
   // Wait for media source to be open
+  this.getUserMedia(stream => {
+    var recorder = new MediaRecorder(stream, {mimeType : 'video/webm; codecs="opus, vp9"'});
+    recorder.ondataavailable = recorderOnDataAvailable;
+    recorder.start(10);
+    function recorderOnDataAvailable(e){
+      that.addBlobToArray(e.data);
+    }
+  });
   mediaSource = new MediaSource();
   mediaSource.addEventListener('sourceopen', mediaSourceOpen);
   player = document.getElementById('participantVideo');
@@ -125,12 +136,14 @@ componentDidMount(){
   function mediaSourceOpen() {
     var mimeType = 'video/webm; codecs="opus, vp9"';
     sourceBuffer = mediaSource.addSourceBuffer(mimeType);
+    sourceBuffer.mode = 'sequence';
   }
+
 }
   requestUserMedia() {
     this.getUserMedia(stream => {
       this.videoRef.current.srcObject = stream;// window.URL.createObjectURL(new Blob(binaryData, {type: "application/zip"}));
-      handleStream(stream);
+      // handleStream(stream);
     });
   }
 
@@ -144,6 +157,7 @@ componentDidMount(){
 
   }
   addBlobToArray(blob){
+    // console.log(new UnitArray(blob));
     if(rxCount == 0){
       blob.arrayBuffer().then(data => {
         sourceBuffer.appendBuffer(data);
@@ -154,6 +168,7 @@ componentDidMount(){
         sourceBuffer.appendBuffer(data);
       });
     }
+    rxCount++;
   }
   stopRecord() {
     this.state.recordVideo.stopRecording(() => {
